@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Invitación de Graduación | Suani</title>
+  
+  <!-- Tipografías elegantes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(180deg, #f3faf4 0%, #e5f3e7 100%);
+      --env-body: #6fb67e;
+      --env-flap: #7dc28b;
+      --env-sides: #64aa72;
+      --env-bottom: #5b9f69;
+      --gold-primary: #c59b3f;
+      --gold-light: #f6e6be;
+      --gold-dark: #916f22;
+      --gold-glow: rgba(197, 155, 63, 0.55);
+      --text-dark: #1b3320;
+      --text-muted: #536d58;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      min-height: 100vh;
+      min-height: 100dvh;
+      background: var(--bg-gradient);
+      font-family: 'Montserrat', sans-serif;
+      color: var(--text-dark);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px 14px;
+      overflow-x: hidden;
+    }
+
+    /* Fondo de destellos y confeti */
+    #canvas-particles, #canvas-burst {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    #canvas-particles { z-index: 1; }
+    #canvas-burst { z-index: 50; }
+
+    /* Botón flotante de música */
+    .music-btn {
+      position: fixed;
+      top: 14px;
+      right: 14px;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.95);
+      border: 1.5px solid var(--env-body);
+      box-shadow: 0 4px 15px rgba(27, 51, 32, 0.16);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 100;
+      backdrop-filter: blur(8px);
+      transition: opacity 0.4s ease, transform 0.25s ease;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .music-btn.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .music-btn:active {
+      transform: scale(0.92);
+    }
+
+    .music-icon {
+      width: 20px;
+      height: 20px;
+      color: var(--text-dark);
+    }
+
+    .music-btn.playing {
+      animation: pulseMusic 2.4s infinite ease-in-out;
+    }
+
+    @keyframes pulseMusic {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(111, 182, 126, 0.5); }
+      50% { box-shadow: 0 0 0 8px rgba(111, 182, 126, 0); }
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* =========================================
+       HOJA 1: EL SOBRE
+    ========================================= */
+    #page-envelope {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 360px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .envelope-header {
+      text-align: center;
+      margin-bottom: 22px;
+    }
+
+    .envelope-header h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.95rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      letter-spacing: 0.3px;
+      line-height: 1.2;
+    }
+
+    .envelope-header p {
+      font-family: 'Alex Brush', cursive;
+      font-size: 1.7rem;
+      color: var(--gold-primary);
+      margin-top: 2px;
+    }
+
+    .envelope-box {
+      position: relative;
+      width: 290px;
+      height: 195px;
+      background: var(--env-body);
+      border-radius: 12px;
+      box-shadow: 0 16px 36px rgba(27, 51, 32, 0.22);
+      cursor: pointer;
+      perspective: 900px;
+    }
+
+    .inner-sheet {
+      position: absolute;
+      top: 8px;
+      left: 10px;
+      width: 270px;
+      height: 175px;
+      background: #ffffff;
+      border-radius: 8px;
+      border: 1px solid rgba(197, 155, 63, 0.3);
+      z-index: 1;
+      transition: transform 0.85s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .envelope-pocket {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .pocket-left {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--env-sides);
+      clip-path: polygon(0 0, 52% 50%, 0 100%);
+    }
+
+    .pocket-right {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--env-sides);
+      clip-path: polygon(100% 0, 48% 50%, 100% 100%);
+    }
+
+    .pocket-bottom {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--env-bottom);
+      clip-path: polygon(0 100%, 100% 100%, 50% 43%);
+    }
+
+    .envelope-flap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 105px;
+      background: var(--env-flap);
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+      transform-origin: top center;
+      transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 3;
+      border-top-left-radius: 12px;
+      border-top-right-radius: 12px;
+    }
+
+    .wax-seal {
+      position: absolute;
+      top: 76px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, var(--gold-light), var(--gold-primary) 65%, var(--gold-dark));
+      border: 2px solid rgba(255, 255, 255, 0.7);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 4;
+      color: #3b2804;
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 700;
+      font-size: 1.4rem;
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+
+    .open-prompt {
+      margin-top: 22px;
+      font-size: 0.8rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: 500;
+      animation: pulsePrompt 2s infinite ease-in-out;
+    }
+
+    @keyframes pulsePrompt {
+      0%, 100% { opacity: 0.65; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.03); }
+    }
+
+    .envelope-box.opening .envelope-flap {
+      transform: rotateX(180deg);
+      z-index: 1;
+    }
+
+    .envelope-box.opening .wax-seal {
+      opacity: 0;
+      transform: translateX(-50%) scale(0.6);
+    }
+
+    .envelope-box.opening .inner-sheet {
+      transform: translateY(-75px);
+    }
+
+    /* =========================================
+       HOJA 2: INVITACIÓN FORMAL & EFECTOS
+    ========================================= */
+    #page-card {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 390px;
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 30px 20px 24px;
+      box-shadow: 0 18px 45px rgba(27, 51, 32, 0.16);
+      border: 1px solid rgba(197, 155, 63, 0.35);
+      text-align: center;
+      opacity: 0;
+      transform: translateY(35px) scale(0.95);
+      transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    #page-card.active {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    /* Animación escalonada para elementos internos */
+    .anim-item {
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #page-card.active .anim-item {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    #page-card.active .anim-delay-1 { transition-delay: 0.1s; }
+    #page-card.active .anim-delay-2 { transition-delay: 0.2s; }
+    #page-card.active .anim-delay-3 { transition-delay: 0.3s; }
+    #page-card.active .anim-delay-4 { transition-delay: 0.4s; }
+    #page-card.active .anim-delay-5 { transition-delay: 0.5s; }
+
+    /* EFECTO INTERACTIVO: MARCO DORADO AL TOCAR / PRESIONAR */
+    .glow-box {
+      cursor: pointer;
+      position: relative;
+      transition: border-color 0.35s ease, box-shadow 0.35s ease, transform 0.2s ease;
+      outline: none;
+    }
+
+    .glow-box:active,
+    .glow-box.glow-active {
+      border-color: var(--gold-primary) !important;
+      box-shadow: 0 0 0 2px var(--gold-light), 0 6px 20px var(--gold-glow) !important;
+      transform: scale(1.02);
+    }
+
+    .corner-decor {
+      position: absolute;
+      width: 32px;
+      height: 32px;
+      pointer-events: none;
+      opacity: 0.75;
+    }
+    .c-tl { top: 10px; left: 10px; }
+    .c-tr { top: 10px; right: 10px; transform: scaleX(-1); }
+    .c-bl { bottom: 10px; left: 10px; transform: scaleY(-1); }
+    .c-br { bottom: 10px; right: 10px; transform: scale(-1); }
+
+    .sub-tag {
+      font-size: 0.75rem;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .ceremony-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin: 4px 0 2px;
+    }
+
+    .name-highlight {
+      font-family: 'Alex Brush', cursive;
+      font-size: 3.4rem;
+      line-height: 1.05;
+      background: linear-gradient(135deg, var(--gold-dark), var(--gold-primary), var(--gold-light), var(--gold-primary));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+    }
+
+    .class-badge {
+      display: inline-block;
+      padding: 5px 15px;
+      background: #eef7f0;
+      border: 1px solid var(--env-body);
+      border-radius: 25px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-dark);
+      letter-spacing: 0.8px;
+      margin-bottom: 18px;
+    }
+
+    /* Mensaje con marco interactivo dorado */
+    .message-box {
+      background: #fbfdfb;
+      border: 1.5px solid rgba(111, 182, 126, 0.4);
+      border-radius: 12px;
+      padding: 18px 16px 14px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+    }
+
+    .message-box p {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.08rem;
+      line-height: 1.55;
+      font-style: italic;
+      color: #27402c;
+      text-align: center;
+    }
+
+    .signature-container {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 10px;
+    }
+
+    .signature-gold {
+      font-family: 'Alex Brush', cursive;
+      font-size: 1.75rem;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--gold-dark), var(--gold-primary), var(--gold-light), var(--gold-primary));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-align: right;
+    }
+
+    /* Contador */
+    .timer-wrap {
+      margin-bottom: 20px;
+    }
+
+    .timer-caption {
+      font-size: 0.7rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      font-weight: 500;
+    }
+
+    .timer-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+
+    .timer-item {
+      background: #f2f8f3;
+      border: 1.5px solid rgba(111, 182, 126, 0.35);
+      border-radius: 8px;
+      padding: 8px 2px;
+    }
+
+    .timer-val {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      line-height: 1;
+    }
+
+    .timer-lbl {
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.8px;
+      margin-top: 3px;
+    }
+
+    /* Fecha y Hora */
+    .event-details {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .detail-card {
+      background: #f8fbf8;
+      border: 1.5px solid rgba(197, 155, 63, 0.28);
+      border-radius: 10px;
+      padding: 10px 6px;
+    }
+
+    .detail-card span {
+      display: block;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--gold-dark);
+      margin-bottom: 3px;
+      font-weight: 600;
+    }
+
+    .detail-card strong {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.05rem;
+      color: var(--text-dark);
+      font-weight: 600;
+    }
+
+    .action-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .maps-btn {
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      background: linear-gradient(135deg, #6fb67e, #559b64);
+      color: #ffffff;
+      text-decoration: none;
+      padding: 14px 18px;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 1.2px;
+      box-shadow: 0 8px 22px rgba(85, 155, 100, 0.35);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .maps-btn:active {
+      transform: scale(0.97);
+    }
+
+    .maps-btn::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -60%;
+      width: 40%;
+      height: 200%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+      transform: rotate(25deg);
+      animation: shimmerButton 3.5s infinite;
+    }
+
+    @keyframes shimmerButton {
+      0% { left: -60%; }
+      35%, 100% { left: 140%; }
+    }
+
+    .calendar-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      background: #ffffff;
+      color: var(--text-dark);
+      text-decoration: none;
+      padding: 12px 18px;
+      border-radius: 30px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      border: 1.5px solid var(--env-body);
+      box-shadow: 0 4px 14px rgba(27, 51, 32, 0.08);
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .calendar-btn:active {
+      transform: scale(0.97);
+      background: #f4faf5;
+    }
+
+    .btn-icon {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+
+    .calendar-btn .btn-icon {
+      color: var(--gold-dark);
+    }
+
+    .close-link {
+      margin-top: 16px;
+      background: none;
+      border: none;
+      font-size: 0.72rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      cursor: pointer;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Partículas de fondo y ráfaga festiva de apertura -->
+  <canvas id="canvas-particles"></canvas>
+  <canvas id="canvas-burst"></canvas>
+
+  <!-- Audio de música de fondo -->
+  <audio id="bg-music" loop preload="auto">
+    <source src="musica.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- Botón flotante -->
+  <button id="music-toggle" class="music-btn" aria-label="Controlar música">
+    <svg id="icon-play" class="music-icon hidden" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M8 5v14l11-7z"/>
+    </svg>
+    <svg id="icon-pause" class="music-icon" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+    </svg>
+  </button>
+
+  <!-- =========================================
+       HOJA 1: EL SOBRE
+  ========================================= -->
+  <section id="page-envelope">
+    <div class="envelope-header">
+      <h1>Invitación a mi Graduación</h1>
+      <p>Una velada inolvidable te espera</p>
+    </div>
+
+    <div class="envelope-box" id="envelope-box">
+      <div class="inner-sheet"></div>
+      
+      <div class="envelope-pocket">
+        <div class="pocket-left"></div>
+        <div class="pocket-right"></div>
+        <div class="pocket-bottom"></div>
+      </div>
+
+      <div class="envelope-flap"></div>
+      <div class="wax-seal">S</div>
+    </div>
+
+    <p class="open-prompt">Toca el sobre para abrir</p>
+  </section>
+
+  <!-- =========================================
+       HOJA 2: LA INVITACIÓN
+  ========================================= -->
+  <main id="page-card" class="hidden">
+    <!-- Filigranas -->
+    <svg class="corner-decor c-tl" viewBox="0 0 100 100" fill="none">
+      <path d="M10 90 C 10 30, 30 10, 90 10" stroke="url(#goldGrad)" stroke-width="2.5"/>
+      <circle cx="90" cy="10" r="3" fill="#c59b3f"/>
+      <circle cx="10" cy="90" r="3" fill="#c59b3f"/>
+    </svg>
+    <svg class="corner-decor c-tr" viewBox="0 0 100 100" fill="none">
+      <path d="M10 90 C 10 30, 30 10, 90 10" stroke="url(#goldGrad)" stroke-width="2.5"/>
+      <circle cx="90" cy="10" r="3" fill="#c59b3f"/>
+      <circle cx="10" cy="90" r="3" fill="#c59b3f"/>
+    </svg>
+    <svg class="corner-decor c-bl" viewBox="0 0 100 100" fill="none">
+      <path d="M10 90 C 10 30, 30 10, 90 10" stroke="url(#goldGrad)" stroke-width="2.5"/>
+      <circle cx="90" cy="10" r="3" fill="#c59b3f"/>
+      <circle cx="10" cy="90" r="3" fill="#c59b3f"/>
+    </svg>
+    <svg class="corner-decor c-br" viewBox="0 0 100 100" fill="none">
+      <defs>
+        <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#916f22"/>
+          <stop offset="50%" stop-color="#c59b3f"/>
+          <stop offset="100%" stop-color="#f6e6be"/>
+        </linearGradient>
+      </defs>
+      <path d="M10 90 C 10 30, 30 10, 90 10" stroke="url(#goldGrad)" stroke-width="2.5"/>
+      <circle cx="90" cy="10" r="3" fill="#c59b3f"/>
+      <circle cx="10" cy="90" r="3" fill="#c59b3f"/>
+    </svg>
+
+    <div class="anim-item anim-delay-1">
+      <p class="sub-tag">Ceremonia & Fiesta</p>
+      <h2 class="ceremony-title">Graduación</h2>
+      <div class="name-highlight">Suani</div>
+      <div class="class-badge">5.° B • Promoción 2026</div>
+    </div>
+
+    <!-- Mensaje Emotivo con Marco Dorado al tocar -->
+    <div class="anim-item anim-delay-2">
+      <div class="message-box glow-box" tabindex="0">
+        <p>
+          «Llegar a este momento representa el esfuerzo de años y el inicio de nuevos caminos. Compartir este logro con quienes han dejado huella en mi vida lo hace verdaderamente especial. Será un honor contar con tu compañía en esta noche inolvidable.»
+        </p>
+        <div class="signature-container">
+          <span class="signature-gold">Promoción Suani</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contador en vivo interactivo -->
+    <div class="anim-item anim-delay-3 timer-wrap">
+      <p class="timer-caption">Cada segundo nos acerca al gran momento</p>
+      <div class="timer-grid">
+        <div class="timer-item glow-box" tabindex="0">
+          <div class="timer-val" id="days">00</div>
+          <div class="timer-lbl">Días</div>
+        </div>
+        <div class="timer-item glow-box" tabindex="0">
+          <div class="timer-val" id="hours">00</div>
+          <div class="timer-lbl">Horas</div>
+        </div>
+        <div class="timer-item glow-box" tabindex="0">
+          <div class="timer-val" id="minutes">00</div>
+          <div class="timer-lbl">Min</div>
+        </div>
+        <div class="timer-item glow-box" tabindex="0">
+          <div class="timer-val" id="seconds">00</div>
+          <div class="timer-lbl">Seg</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Datos confirmados con Marco Dorado al tocar -->
+    <div class="anim-item anim-delay-4 event-details">
+      <div class="detail-card glow-box" tabindex="0">
+        <span>Fecha</span>
+        <strong>Martes, 8 Dic 2026</strong>
+      </div>
+      <div class="detail-card glow-box" tabindex="0">
+        <span>Hora de Gala</span>
+        <strong>9:00 p. m.</strong>
+      </div>
+    </div>
+
+    <!-- Botones de Acción -->
+    <div class="anim-item anim-delay-5 action-buttons">
+      <a href="https://maps.app.goo.gl/TKvrsd3R5mg1fUnx8" target="_blank" rel="noopener noreferrer" class="maps-btn">
+        <svg class="btn-icon" viewBox="0 0 24 24">
+          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/>
+        </svg>
+        VER UBICACIÓN
+      </a>
+
+      <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Fiesta+de+Graduaci%C3%B3n+-+Suani+(5.%C2%B0+B)&dates=20261209T020000Z/20261209T080000Z&details=Acomp%C3%A1%C3%B1ame+a+celebrar+mi+graduaci%C3%B3n.+Promoci%C3%B3n+2026.&location=https%3A%2F%2Fmaps.app.goo.gl%2FTKvrsd3R5mg1fUnx8" target="_blank" rel="noopener noreferrer" class="calendar-btn glow-box">
+        <svg class="btn-icon" viewBox="0 0 24 24">
+          <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/>
+        </svg>
+        AGENDAR EN CALENDARIO
+      </a>
+    </div>
+
+    <button id="btn-close" class="close-link">Cerrar sobre</button>
+  </main>
+
+  <script>
+    const envelopeBox = document.getElementById('envelope-box');
+    const pageEnvelope = document.getElementById('page-envelope');
+    const pageCard = document.getElementById('page-card');
+    const btnClose = document.getElementById('btn-close');
+    const audio = document.getElementById('bg-music');
+    const musicToggle = document.getElementById('music-toggle');
+    const iconPlay = document.getElementById('icon-play');
+    const iconPause = document.getElementById('icon-pause');
+
+    let isPlaying = false;
+
+    // EFECTO TÁCTIL: Marco dorado al presionar cualquier .glow-box
+    document.querySelectorAll('.glow-box').forEach(box => {
+      box.addEventListener('click', () => {
+        box.classList.add('glow-active');
+        setTimeout(() => box.classList.remove('glow-active'), 900);
+      });
+      box.addEventListener('touchstart', () => {
+        box.classList.add('glow-active');
+      }, { passive: true });
+      box.addEventListener('touchend', () => {
+        setTimeout(() => box.classList.remove('glow-active'), 600);
+      });
+    });
+
+    // Reproducción de música con subida suave
+    function startMusic() {
+      audio.volume = 0;
+      audio.play().then(() => {
+        isPlaying = true;
+        musicToggle.classList.add('visible', 'playing');
+        iconPause.classList.remove('hidden');
+        iconPlay.classList.add('hidden');
+
+        let vol = 0;
+        const fade = setInterval(() => {
+          if (vol < 0.40) {
+            vol += 0.05;
+            audio.volume = Math.min(vol, 0.40);
+          } else {
+            clearInterval(fade);
+          }
+        }, 120);
+      }).catch((e) => {
+        console.log("Audio:", e);
+      });
+    }
+
+    // ABRIR SOBRE (Explosión dorada, música y revelado)
+    envelopeBox.addEventListener('click', () => {
+      envelopeBox.classList.add('opening');
+      
+      // Lanzar chispas y confeti de gala
+      launchBurst();
+
+      if (!isPlaying) {
+        startMusic();
+      }
+
+      setTimeout(() => {
+        pageEnvelope.style.opacity = '0';
+        pageEnvelope.style.transform = 'scale(0.95)';
+        
+        setTimeout(() => {
+          pageEnvelope.classList.add('hidden');
+          pageCard.classList.remove('hidden');
+          void pageCard.offsetWidth;
+          pageCard.classList.add('active');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }, 320);
+      }, 620);
+    });
+
+    // CERRAR SOBRE
+    btnClose.addEventListener('click', () => {
+      pageCard.classList.remove('active');
+      setTimeout(() => {
+        pageCard.classList.add('hidden');
+        pageEnvelope.classList.remove('hidden');
+        envelopeBox.classList.remove('opening');
+        void pageEnvelope.offsetWidth;
+        pageEnvelope.style.opacity = '1';
+        pageEnvelope.style.transform = 'scale(1)';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 400);
+    });
+
+    // BOTÓN MÚSICA
+    musicToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (isPlaying) {
+        audio.pause();
+        isPlaying = false;
+        musicToggle.classList.remove('playing');
+        iconPause.classList.add('hidden');
+        iconPlay.classList.remove('hidden');
+      } else {
+        audio.play();
+        isPlaying = true;
+        musicToggle.classList.add('playing');
+        iconPlay.classList.add('hidden');
+        iconPause.classList.remove('hidden');
+      }
+    });
+
+    // CONTADOR EN VIVO (Martes, 8 Dic 2026, 9:00 p. m. UTC-5)
+    const targetDate = new Date('2026-12-08T21:00:00-05:00').getTime();
+
+    function updateCountdown() {
+      const now = new Date().getTime();
+      const diff = targetDate - now;
+
+      if (diff <= 0) {
+        document.getElementById('days').innerText = "00";
+        document.getElementById('hours').innerText = "00";
+        document.getElementById('minutes').innerText = "00";
+        document.getElementById('seconds').innerText = "00";
+        return;
+      }
+
+      const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+      document.getElementById('days').innerText = d < 10 ? '0' + d : d;
+      document.getElementById('hours').innerText = h < 10 ? '0' + h : h;
+      document.getElementById('minutes').innerText = m < 10 ? '0' + m : m;
+      document.getElementById('seconds').innerText = s < 10 ? '0' + s : s;
+    }
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+
+    // CANVAS 1: PARTÍCULAS AMBIENTALES FLOTANTES
+    const canvas = document.getElementById('canvas-particles');
+    const ctx = canvas.getContext('2d');
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+
+    window.addEventListener('resize', () => {
+      width = canvas.width = burstCanvas.width = window.innerWidth;
+      height = canvas.height = burstCanvas.height = window.innerHeight;
+    });
+
+    const particles = [];
+    for (let i = 0; i < 24; i++) {
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        radius: Math.random() * 1.8 + 0.8,
+        speedX: (Math.random() - 0.5) * 0.35,
+        speedY: (Math.random() - 0.5) * 0.35 - 0.15,
+        alpha: Math.random() * 0.5 + 0.2
+      });
+    }
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, width, height);
+      particles.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(111, 182, 126, ${p.alpha})`;
+        ctx.fill();
+
+        p.x += p.speedX;
+        p.y += p.speedY;
+
+        if (p.y < 0) p.y = height;
+        if (p.x < 0) p.x = width;
+        if (p.x > width) p.x = 0;
+      });
+      requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
+
+    // CANVAS 2: RÁFAGA FESTIVA DE CONFETI Y CHISPAS DORADAS AL ABRIR
+    const burstCanvas = document.getElementById('canvas-burst');
+    const bCtx = burstCanvas.getContext('2d');
+    burstCanvas.width = window.innerWidth;
+    burstCanvas.height = window.innerHeight;
+
+    let burstItems = [];
+
+    function launchBurst() {
+      const centerX = width / 2;
+      const centerY = height / 2;
+      const colors = ['#c59b3f', '#f3dfa6', '#6fb67e', '#ffffff', '#e8c164'];
+
+      burstItems = [];
+      for (let i = 0; i < 55; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 8 + 3;
+        burstItems.push({
+          x: centerX,
+          y: centerY,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - 2.5,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          size: Math.random() * 5 + 3,
+          rot: Math.random() * 360,
+          rotSpeed: (Math.random() - 0.5) * 12,
+          alpha: 1,
+          gravity: 0.22
+        });
+      }
+      renderBurst();
+    }
+
+    function renderBurst() {
+      bCtx.clearRect(0, 0, width, height);
+      let alive = false;
+
+      burstItems.forEach(b => {
+        b.x += b.vx;
+        b.y += b.vy;
+        b.vy += b.gravity;
+        b.rot += b.rotSpeed;
+        b.alpha -= 0.016;
+
+        if (b.alpha > 0) {
+          alive = true;
+          bCtx.save();
+          bCtx.translate(b.x, b.y);
+          bCtx.rotate((b.rot * Math.PI) / 180);
+          bCtx.globalAlpha = Math.max(b.alpha, 0);
+          bCtx.fillStyle = b.color;
+          bCtx.fillRect(-b.size / 2, -b.size / 2, b.size, b.size * 0.7);
+          bCtx.restore();
+        }
+      });
+
+      if (alive) {
+        requestAnimationFrame(renderBurst);
+      } else {
+        bCtx.clearRect(0, 0, width, height);
+      }
+    }
+  </script>
+</body>
+</html>
